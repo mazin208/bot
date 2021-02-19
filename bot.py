@@ -12,7 +12,6 @@ with open('config.json') as f:
 #initialise  bot
 bot = telebot.TeleBot(token['telegramToken'])
 x = bot.get_me()
-print(x)
 
 #handling /commands
 @bot.message_handler(commands=['motivate'])
@@ -52,5 +51,6 @@ def down(msg):
                 bot.reply_to(msg, link, parse_mode='HTML', disable_notification=True)
     except:
         bot.reply_to(msg, 'This can\'t be downloaded by me')
+print(x)
 #pool~start the bot
 bot.polling()
