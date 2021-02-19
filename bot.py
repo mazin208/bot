@@ -15,7 +15,7 @@ x = bot.get_me()
 
 #handling /commands
 @bot.message_handler(commands=['motivate'])
-def send_welc(message):
+def send_quotes(message):
         quote = requests.request(url='https://api.quotable.io/random',method='get')
         bot.send_message(message.chat.id, quote.json()['content'])
 
