@@ -54,7 +54,6 @@ dbus-python==1.2.16
 decorator==4.4.2
 defusedxml==0.6.0
 deprecation==2.0.7
-dhcpig==0.0.0
 Django==2.2.15
 dnslib==0.9.14
 dnspython==1.16.0
