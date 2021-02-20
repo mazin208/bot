@@ -48,7 +48,7 @@ colorama==0.4.3
 colorclass==2.2.0
 configobj==5.0.6
 constantly==15.1.0
-crackmapexec==5.0.2.dev0
+crackmapexec==5.1.1
 crcelk==1.3
 cryptography==2.8
 cupshelpers==1.0
