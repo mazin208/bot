@@ -77,8 +77,6 @@ txaio==20.4.1
 typing-extensions==3.7.4.2
 tzlocal==2.1b1
 u-msgpack-python==2.3.0
-ufw==0.36
-unattended-upgrades==0.1
 unicodecsv==0.14.1
 Unidecode==1.1.1
 urllib3==1.24.3
