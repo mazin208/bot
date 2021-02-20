@@ -7,8 +7,12 @@ except ImportError:
 
 import logging
 import ssl
-
+import pafy
 import telebot
+from telebot import types
+from tqdm import tqdm 
+import requests
+import os
 
 API_TOKEN = '<api_token>'
 
