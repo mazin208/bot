@@ -85,9 +85,6 @@ user-agent==0.1.9
 virtualenv==20.4.2
 webencodings==0.5.1
 websocket-client==0.57.0
-websploit==4.0.4
-WebTest==2.0.34
-Werkzeug==1.0.0
 winacl==0.0.2
 wsaccel==0.6.2
 wsproto==0.15.0
