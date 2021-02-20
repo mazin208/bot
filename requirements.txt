@@ -90,6 +90,4 @@ wsaccel==0.6.2
 wsproto==0.15.0
 WTForms==2.2.1
 wxPython==4.0.7
-logging
-ssl
 telebot
