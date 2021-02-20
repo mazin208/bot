@@ -65,19 +65,46 @@ class WebhookHandler(BaseHTTPRequestHandler):
             self.end_headers()
 
 
-# Handle '/start' and '/help'
-@bot.message_handler(commands=['help', 'start'])
+
+x = bot.get_me()
+
+#handling commands - /start
+@bot.message_handler(commands=["start", "help"])
 def send_welcome(message):
-    bot.reply_to(message,
-                 ("Hi there, I am EchoBot.\n"
-                  "I am here to echo your kind words back to you."))
+ bot.send_message(message.chat.id, "Welcome user")
+
+ 
+ 
+ 
+ #markup = types.ForceReply(selective=False)
+ #markup = types.ReplyKeyboardMarkup()
+ #itembtna = types.KeyboardButton('a')
+ #itembtnv = types.KeyboardButton('v')
+ #itembtnc = types.KeyboardButton('c')
+ #itembtnd = types.KeyboardButton('d')
+ #itembtne = types.KeyboardButton('e')
+ #markup.row(itembtna, itembtnv)
+ #markup.row(itembtnc, itembtnd, itembtne)
+ #bot.send_message(message.chat.id, "Choose one letter:", reply_markup=markup)
+ 
+
+#handling commands - /motivate
+@bot.message_handler(commands=["motivate"])
+def send_quotes(message):
+ quote= requests.request(url="https://api.quotable.io/random",method='get')
+ bot.reply_to(message, quote.json()["content"]) 
+ 
+@bot.message_handler(commands=["down"])
+def send_video(message):
+ markup = types.ForceReply(selective=False)
+ url = bot.send_message(message.chat.id, "Send me the URL:", reply_markup=markup)
+ myvid = pafy.get_playlist(url)
+ bot.reply_to(message, str(myvid))
+ for i in tqdm (range (100), desc="Loading..."): 
+    pass
 
 
-# Handle all other messages
-@bot.message_handler(func=lambda message: True, content_types=['text'])
-def echo_message(message):
-    bot.reply_to(message, message.text)
-
+print(x)
 
 # Remove webhook, it fails sometimes the set if there is a previous webhook
 #bot.remove_webhook()
