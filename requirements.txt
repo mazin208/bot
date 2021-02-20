@@ -12,7 +12,6 @@ alembic==1.4.2
 aniso8601==8.0.0
 apispec==3.3.1
 apispec-webframeworks==0.5.2
-apparmor==2.13.4
 appdirs==1.4.4
 argcomplete==1.10.0
 arrow==0.15.7
