@@ -1,145 +1,70 @@
-import telebot
-import requests
-import os
-import json
-#Config vars
 
 import logging
+import os
 
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, Update
-from telegram.ext import (
-    Updater,
-    CommandHandler,
-    MessageHandler,
-    Filters,
-    ConversationHandler,
-    CallbackContext,
-)
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 # Enable logging
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
-)
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
-GENDER, PHOTO, LOCATION, BIO = range(4)
+PORT = int(os.environ.get('PORT', '8443'))
+# Define a few command handlers. These usually take the two arguments update and
+# context. Error handlers also receive the raised TelegramError object in error.
 
 
-def start(update: Update, context: CallbackContext) -> int:
-    reply_keyboard = [['Boy', 'Girl', 'Other']]
-
-    update.message.reply_text(
-        'Hi! My name is Professor Bot. I will hold a conversation with you. '
-        'Send /cancel to stop talking to me.\n\n'
-        'Are you a boy or a girl?',
-        reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
-    )
-
-    return GENDER
+def start(update, context):
+    """Send a message when the command /start is issued."""
+    update.message.reply_text('Hi!')
 
 
-def gender(update: Update, context: CallbackContext) -> int:
-    user = update.message.from_user
-    logger.info("Gender of %s: %s", user.first_name, update.message.text)
-    update.message.reply_text(
-        'I see! Please send me a photo of yourself, '
-        'so I know what you look like, or send /skip if you don\'t want to.',
-        reply_markup=ReplyKeyboardRemove(),
-    )
-
-    return PHOTO
+def help(update, context):
+    """Send a message when the command /help is issued."""
+    update.message.reply_text('Help!')
 
 
-def photo(update: Update, context: CallbackContext) -> int:
-    user = update.message.from_user
-    photo_file = update.message.photo[-1].get_file()
-    photo_file.download('user_photo.jpg')
-    logger.info("Photo of %s: %s", user.first_name, 'user_photo.jpg')
-    update.message.reply_text(
-        'Gorgeous! Now, send me your location please, ' 'or send /skip if you don\'t want to.'
-    )
-
-    return LOCATION
+def echo(update, context):
+    """Echo the user message."""
+    update.message.reply_text(update.message.text)
 
 
-def skip_photo(update: Update, context: CallbackContext) -> int:
-    user = update.message.from_user
-    logger.info("User %s did not send a photo.", user.first_name)
-    update.message.reply_text(
-        'I bet you look great! Now, send me your location please, ' 'or send /skip.'
-    )
-
-    return LOCATION
+def error(update, context):
+    """Log Errors caused by Updates."""
+    logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
-def location(update: Update, context: CallbackContext) -> int:
-    user = update.message.from_user
-    user_location = update.message.location
-    logger.info(
-        "Location of %s: %f / %f", user.first_name, user_location.latitude, user_location.longitude
-    )
-    update.message.reply_text(
-        'Maybe I can visit you sometime! ' 'At last, tell me something about yourself.'
-    )
-
-    return BIO
-
-
-def skip_location(update: Update, context: CallbackContext) -> int:
-    user = update.message.from_user
-    logger.info("User %s did not send a location.", user.first_name)
-    update.message.reply_text(
-        'You seem a bit paranoid! ' 'At last, tell me something about yourself.'
-    )
-
-    return BIO
-
-
-def bio(update: Update, context: CallbackContext) -> int:
-    user = update.message.from_user
-    logger.info("Bio of %s: %s", user.first_name, update.message.text)
-    update.message.reply_text('Thank you! I hope we can talk again some day.')
-
-    return ConversationHandler.END
-
-
-def cancel(update: Update, context: CallbackContext) -> int:
-    user = update.message.from_user
-    logger.info("User %s canceled the conversation.", user.first_name)
-    update.message.reply_text(
-        'Bye! I hope we can talk again some day.', reply_markup=ReplyKeyboardRemove()
-    )
-
-    return ConversationHandler.END
-
-
-def main() -> None:
+def main():
+    """Start the bot."""
     # Create the Updater and pass it your bot's token.
-    updater = Updater("")
+    # Make sure to set use_context=True to use the new context based callbacks
+    # Post version 12 this will no longer be necessary
+    TOKEN = "1686921032:AAH7CKmaHFi8KGNKa8rgdm4tRFwUPB6sRY4"
+    APP_NAME = "https://maz208.herokuapp.com/"
+    
+    updater = Updater(
+        TOKEN, use_context=True)
 
     # Get the dispatcher to register handlers
-    dispatcher = updater.dispatcher
+    dp = updater.dispatcher
 
-    # Add conversation handler with the states GENDER, PHOTO, LOCATION and BIO
-    conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('start', start)],
-        states={
-            GENDER: [MessageHandler(Filters.regex('^(Boy|Girl|Other)$'), gender)],
-            PHOTO: [MessageHandler(Filters.photo, photo), CommandHandler('skip', skip_photo)],
-            LOCATION: [
-                MessageHandler(Filters.location, location),
-                CommandHandler('skip', skip_location),
-            ],
-            BIO: [MessageHandler(Filters.text & ~Filters.command, bio)],
-        },
-        fallbacks=[CommandHandler('cancel', cancel)],
-    )
+    # on different commands - answer in Telegram
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("help", help))
 
-    dispatcher.add_handler(conv_handler)
+    # on noncommand i.e message - echo the message on Telegram
+    dp.add_handler(MessageHandler(Filters.text, echo))
+
+    # log all errors
+    dp.add_error_handler(error)
 
     # Start the Bot
-    updater.start_polling()
+    updater.start_webhook(listen="0.0.0.0",
+                          port=PORT,
+                          url_path=TOKEN)
+    # updater.bot.set_webhook(url=settings.WEBHOOK_URL)
+    updater.bot.set_webhook(APP_NAME + TOKEN)
 
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
